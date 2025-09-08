@@ -605,16 +605,22 @@ bool GridMap::addDataFrom(
     }
   }
   // Copy data.
-  for (GridMapIterator iterator(*this); !iterator.isPastEnd(); ++iterator) {
-    if (isValid(*iterator) && !overwriteData) {continue;}
+  std::vector<grid_map::Index> all_indices;
+  for (grid_map::GridMapIterator iterator(*this); !iterator.isPastEnd(); ++iterator) {
+    all_indices.push_back(*iterator);
+  }
+  #pragma omp parallel for
+  for (size_t i = 0; i < all_indices.size(); ++i) {
+    const grid_map::Index& index_i = all_indices[i];
+    if (isValid(index_i) && !overwriteData) {continue;}
     Position position;
-    getPosition(*iterator, position);
+    getPosition(index_i, position);
     Index index;
     if (!other.isInside(position)) {continue;}
     other.getIndex(position, index);
     for (const auto & layer : layers) {
       if (!other.isValid(index, layer)) {continue;}
-      at(layer, *iterator) = other.at(layer, index);
+      at(layer, index_i) = other.at(layer, index);
     }
   }
 
@@ -658,36 +664,22 @@ bool GridMap::extendToInclude(const GridMap & other)
   if (resizeMap) {
     GridMap mapCopy = *this;
     setGeometry(extendedMapLength, resolution_, extendedMapPosition);
-    // Align new map with old one.
-    Vector shift = position_ - mapCopy.getPosition();
-    shift.x() = std::fmod(shift.x(), resolution_);
-    shift.y() = std::fmod(shift.y(), resolution_);
-    if (std::abs(shift.x()) < resolution_ / 2.0) {
-      position_.x() -= shift.x();
-    } else {
-      position_.x() += resolution_ - shift.x();
-    }
-    if (size_.x() % 2 != mapCopy.getSize().x() % 2) {
-      position_.x() += -std::copysign(resolution_ / 2.0, shift.x());
-    }
-    if (std::abs(shift.y()) < resolution_ / 2.0) {
-      position_.y() -= shift.y();
-    } else {
-      position_.y() += resolution_ - shift.y();
-    }
-    if (size_.y() % 2 != mapCopy.getSize().y() % 2) {
-      position_.y() += -std::copysign(resolution_ / 2.0, shift.y());
-    }
     // Copy data.
-    for (GridMapIterator iterator(*this); !iterator.isPastEnd(); ++iterator) {
-      if (isValid(*iterator)) {continue;}
+    std::vector<grid_map::Index> all_indices;
+    for (grid_map::GridMapIterator iterator(*this); !iterator.isPastEnd(); ++iterator) {
+      all_indices.push_back(*iterator);
+    }
+    #pragma omp parallel for
+    for (size_t i = 0; i < all_indices.size(); ++i) {
+      const grid_map::Index& index_i = all_indices[i];
+      if (isValid(index_i)) {continue;}
       Position position;
-      getPosition(*iterator, position);
+      getPosition(index_i, position);
       Index index;
       if (!mapCopy.isInside(position)) {continue;}
       mapCopy.getIndex(position, index);
       for (const auto & layer : layers_) {
-        at(layer, *iterator) = mapCopy.at(layer, index);
+        at(layer, index_i) = mapCopy.at(layer, index);
       }
     }
   }

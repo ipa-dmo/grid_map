@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(grid_map_core)
 
+add_compile_options(-fopenmp)
 ## Find ament_cmake macros and libraries
 find_package(ament_cmake REQUIRED)
 find_package(grid_map_cmake_helpers REQUIRED)
+find_package(OpenMP REQUIRED)
 
 ## Define Eigen addons.
 include(cmake/${PROJECT_NAME}-extras.cmake)
@@ -34,6 +36,13 @@ add_library(${PROJECT_NAME}
   src/iterators/LineIterator.cpp
   src/iterators/SlidingWindowIterator.cpp
 )
+
+if(OpenMP_FOUND)
+  target_link_libraries(grid_map_core
+    PUBLIC
+      OpenMP::OpenMP_CXX
+  )
+endif()
 
 ## Specify additional locations of header files
 target_include_directories(${PROJECT_NAME}
@@ -126,7 +135,7 @@ if(TARGET ${PROJECT_NAME}-test)
 endif()
 
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
-ament_export_dependencies(Eigen3)
+ament_export_dependencies(Eigen3 OpenMP)
 ament_package(CONFIG_EXTRAS
   cmake/${PROJECT_NAME}-extras.cmake
 )
