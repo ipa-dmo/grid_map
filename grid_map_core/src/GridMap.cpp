@@ -75,6 +75,11 @@ void GridMap::setBasicLayers(const std::vector<std::string> & basicLayers)
   basicLayers_ = basicLayers;
 }
 
+void GridMap::setRollingMapLayers(const std::vector<std::string> & rollMapLayers)
+{
+  rollMapLayers_=rollMapLayers;
+}
+
 const std::vector<std::string> & GridMap::getBasicLayers() const
 {
   return basicLayers_;
@@ -848,7 +853,9 @@ void GridMap::clearRows(unsigned int index, unsigned int nRows)
 {
   std::vector<std::string> layersToClear;
   if (basicLayers_.size() > 0) {
-    layersToClear = basicLayers_;
+    layersToClear.reserve(basicLayers_.size() + rollMapLayers_.size());
+    layersToClear.insert(layersToClear.end(), basicLayers_.begin(), basicLayers_.end());
+    layersToClear.insert(layersToClear.end(), rollMapLayers_.begin(), rollMapLayers_.end());
   } else {
     layersToClear = layers_;
   }
@@ -861,7 +868,9 @@ void GridMap::clearCols(unsigned int index, unsigned int nCols)
 {
   std::vector<std::string> layersToClear;
   if (basicLayers_.size() > 0) {
-    layersToClear = basicLayers_;
+    layersToClear.reserve(basicLayers_.size() + rollMapLayers_.size());
+    layersToClear.insert(layersToClear.end(), basicLayers_.begin(), basicLayers_.end());
+    layersToClear.insert(layersToClear.end(), rollMapLayers_.begin(), rollMapLayers_.end());
   } else {
     layersToClear = layers_;
   }
