@@ -199,6 +199,9 @@ private:
 
   //! Grid Map Resolution.
   double gridMapResolution_;
+
+  //! Factor used to update submap radius
+  double factor_;
 };
 
 }  // namespace grid_map

@@ -69,6 +69,13 @@ bool NormalVectorsFilter<T>::configure()
         "Parameter `radius` is not positive. Switching to raster method.");
       algorithm = "raster";
     }
+    // Define factor parameter
+    if (!param_reader.get(std::string("factor"), factor_)) {
+      RCLCPP_WARN(
+        this->logging_interface_->get_logger(),
+        "Could not find the parameter: `factor`. Switching to raster method.");
+      algorithm = "raster";
+    }
   }
 
   // Read parallelization_enabled to decide whether parallelization has to be used,
