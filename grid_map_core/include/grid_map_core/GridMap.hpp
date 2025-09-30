@@ -165,6 +165,13 @@ public:
   void setBasicLayers(const std::vector<std::string> & basicLayers);
 
   /*!
+   * Set the layers that are not considered basic but still require rolling movement.
+   * By default the list of rolling layers is empty.
+   * @param rollMapLayers the list of rolling layers.
+   */
+  void setRollingMapLayers(const std::vector<std::string> & rollMapLayers);
+
+  /*!
    * Gets the names of the basic layers.
    * @return the names of the basic layers.
    */
@@ -566,6 +573,9 @@ private:
   //! This means that for a cell to be valid, all basic layers need to be valid.
   //! Also, the basic layers are set to NAN when clearing the map with `clear()`.
   std::vector<std::string> basicLayers_;
+
+  //! Names of layers that are not basic but still require rolling movement
+  std::vector<std::string> rollMapLayers_;
 
   //! Side length of the map in x- and y-direction [m].
   Length length_;
